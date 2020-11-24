@@ -35,15 +35,15 @@ https://tu-darmstadt.de
 
 ## Contents
 
-* [Setup](#-setup)
-* [Reproducing our results](#-reproducing-our-results)
-    * [ECB+](#-ecb)
-    * [FCC-T and GVC](#-fcc-t-and-gvc)
-* [Instructions for other experiments](#-instructions-for-other-experiments)
-    * [Corpus preprocessing options](#-corpus-preprocessing-options)
-    * [Model implementation (feature selection, hyperparameter optimization, baselines)](#-model-implementation)
-* [Troubleshooting](#-troubleshooting)
-* [References](#-references)
+* [Setup](#setup)
+* [Reproducing our results](#reproducing-our-results)
+    * [ECB+](#ecb)
+    * [FCC-T and GVC](#fcc-t-and-gvc)
+* [Instructions for other experiments](#instructions-for-other-experiments)
+    * [Corpus preprocessing options](#corpus-preprocessing-options)
+    * [Model implementation (feature selection, hyperparameter optimization, baselines)](#model-implementation)
+* [Troubleshooting](#troubleshooting)
+* [References](#references)
 
 ## Setup
 
