@@ -1,0 +1,3 @@
+## Predictions and preprocessed corpora
+* The [predictions/](predictions/) directory of the repository contains the gold and system CoNLL files, and the scoring output of our experiments.
+* In [corpora/](corpora/), we provide preprocessed versions of the ECB+ and GVC corpora created with our pipeline (which uses our self-hosted DBpedia and DBpedia Spotlight instances). Please note that FCC is not included for copyright reasons.

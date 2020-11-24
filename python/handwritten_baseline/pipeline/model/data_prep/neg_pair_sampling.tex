@@ -1,0 +1,36 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath}
+
+\title{Negative pair sampling}
+\author{Bugert}
+
+\begin{document}
+	
+\maketitle
+	
+\paragraph{Starting point} In a CDCR corpus, there will be positive and negative pairs of multiple types: within-document, within-subtopic, cross-subtopic, cross-topic. How many possible pairs there are per type depends on the corpus structure. Note there can be (close to) 0 positive training pairs for a type, depending on how a corpus was annotated.
+
+We need to sample a number of negative (i.e. non-coreferring) mention pairs for training. Negative pairs will typically outnumber positive pairs at least by a factor of 10, for cross-topic links it can be a factor of 1000 easily. Training with all negative pairs would take very long and would bias the model towards predicting non-coreferential for most pairs. Possible ways around this are either class reweighting (lower the impact of negative training pairs) or undersampling negative pairs. We follow the undersampling route.
+
+\paragraph{Goal} Assume there are $\text{\#pos}$ positive pairs for a coref link type, then we want to include at least $\text{n2p} \cdot \text{\#pos}$ negative pairs of the same type.
+
+If $\text{\#pos} = 0$, we need a different approach. Taking cross-topic links as an example: Realize that adding one additional topic to a corpus with $n$ topics produces $n$ new cross-topic pairings, i.e. there is a quadratic increase in (topic, topic) pairs with each topic added. To reduce the number of negative cross-topic mention pairs, we want to compute an upper bound for the number of negative pairs which is linear w.r.t. the number of topics. Meaning: Given the total number of negative pairs we could sample for a type (cross-topic), we want to sample by the number of times this type appears in the corpus (i.e. the number of topics).
+
+
+\paragraph{Approach}
+We use pairs of type cross-subtopic as an example here.
+The average number of subtopics per topic is
+\[\frac{\text{\#subtopics}}{\text{\#topics}}\]
+The total number of (subtopic, subtopic) pairings in the corpus is
+\[{\frac{\text{\#subtopics}}{\text{\#topics}}\choose 2} \cdot \text{\#topics}\]
+In a corpus, the number of mentions per subtopic will vary. With $\text{\#mentions}$ being the number of mentions in the whole corpus, the average subtopic has \[\frac{\text{\#mentions}}{\text{\#subtopics}}\] mentions.
+On average, the number of cross-subtopic mention pairs (both positive and negative) therefore is \[{\frac{\text{\#subtopics}}{\text{\#topics}}\choose 2} \cdot \text{\#topics} \cdot \left(\frac{\text{\#mentions}}{\text{\#subtopics}}\right)^2\]
+This scales quadratically with the number of subtopics. We divide by the number of subtopics to keep it linear:
+\begin{align*}
+&& \text{upper\_bound} &= \frac{{\frac{\text{\#subtopics}}{\text{\#topics}}\choose 2} \cdot \text{\#topics} \cdot \left(\frac{\text{\#mentions}}{\text{\#subtopics}}\right)^2}{\text{\#subtopics}} \\
+\Longleftrightarrow && &= \frac{1}{2} \cdot \left(\frac{\text{\#subtopics}}{\text{\#topics}} - 1\right) \cdot \left(\frac{\text{\#mentions}}{\text{\#subtopics}}\right)^2 \\
+\end{align*}
+
+This can analogously be applied to compute an upper bound for sampling within-subtopic pairs (using $\frac{\text{\#documents}}{\text{\#subtopics}}$) and for sampling within-document pairs (using $\frac{\text{\#mentions}}{\text{\#documents}}$).
+	
+\end{document}
