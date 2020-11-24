@@ -1,4 +1,4 @@
-#Cross-Document Event Coreference Resolution Beyond Corpus-Tailored Systems
+# Cross-Document Event Coreference Resolution Beyond Corpus-Tailored Systems
 This repository contains the code for reproducing the results of our paper: *arXiv URL tba*
 
 It contains:
@@ -33,21 +33,21 @@ https://tu-darmstadt.de
 
 > This repository contains experimental software and is published for the sole purpose of giving additional background details on the respective publication.
 
-##Contents
+## Contents
 
-* [Setup](#setup)
-* [Reproducing our results](#reproducing-our-results)
-    * [ECB+](#ecb)
-    * [FCC-T and GVC](#fcc-t-and-gvc)
-* [Instructions for other experiments](#instructions-for-other-experiments)
-    * [Corpus preprocessing options](#corpus-preprocessing-options)
-    * [Model implementation (feature selection, hyperparameter optimization, baselines)](#model-implementation)
-* [Troubleshooting](#troubleshooting)
-* [References](#references)
+* [Setup](#-setup)
+* [Reproducing our results](#-reproducing-our-results)
+    * [ECB+](#-ecb)
+    * [FCC-T and GVC](#-fcc-t-and-gvc)
+* [Instructions for other experiments](#-instructions-for-other-experiments)
+    * [Corpus preprocessing options](#-corpus-preprocessing-options)
+    * [Model implementation (feature selection, hyperparameter optimization, baselines)](#-model-implementation)
+* [Troubleshooting](#-troubleshooting)
+* [References](#-references)
 
-##Setup
+## Setup
 
-###Requirements
+### Requirements
 You need:
 * a machine with [Docker](https://www.docker.com/) installed
 * at least 140GB of free disk space at the location where the Docker container will end up (`/var/lib/docker` by default)
@@ -62,7 +62,7 @@ Not required, but recommended:
 Please note that using the public endpoints will produce preprocessed corpora different from the ones we used in our experiments, hence scores obtained with the public endpoints will not match those reported in the paper.
 [We provide our preprocessed corpora for reference.](archive/)
 
-###Preparatory steps
+### Preparatory steps
 1. Clone this project, open a terminal in the project root and run
    ```bash
    docker build -t cdcr .
@@ -82,11 +82,11 @@ Please note that using the public endpoints will produce preprocessed corpora di
 3. To prepare the FCC-T corpus, visit https://tudatalib.ulb.tu-darmstadt.de/handle/tudatalib/2305 and follow the instructions there.
    Assuming the output of the corpus generation script is `/home/user/datasets`, copy the output into the docker container by running `docker cp /home/user/datasets/. cdcr-container:/cdcr/resources/data/football`.
 
-##Reproducing our results
+## Reproducing our results
 We explain how to reproduce the results of our feature-based CDCR model on ECB+, FCC-T and GVC reported in table 5 in the paper. All steps should be performed in the docker container.
 
 
-###ECB+
+### ECB+
 1. Edit `/cdcr/resources/yaml/device_docker.yaml` (`nano` and `vim` are available).
     * Set `max_cores` to the number of logical CPU cores on your machine.
     * If you have self-hosted instances of DBpedia Spotlight and DBpedia available, you can enter these in the `dbpedia` and `dbpedia_spotlight` sections. 
@@ -169,7 +169,7 @@ We explain how to reproduce the results of our feature-based CDCR model on ECB+,
        ```
        The content of `metrics_aggregated_pretty.txt` is logged to stdout upon completion of the script.
 
-###FCC-T and GVC
+### FCC-T and GVC
 The steps for reproducing our FCC-T and GVC results differ only slightly from those reported above [for ECB+](#ecb).
 1. Run `export CORPUS=fcct` or `export CORPUS=gvc`.
 2. Run preprocessing via `cd /cdcr; resources/scripts/run_data_preprocessing.sh ${CORPUS}`
@@ -190,24 +190,24 @@ The steps for reproducing our FCC-T and GVC results differ only slightly from th
        ```
     3. The results appear inside `/cdcr/working_dir/${CORPUS}_evaluate_clustering/`.
 
-##Instructions for other experiments
+## Instructions for other experiments
 
-###Corpus preprocessing options
+### Corpus preprocessing options
 
-####Merging corpora
+#### Merging corpora
 To perform joint training over multiple corpora (see section 8 in the paper), one needs to create pickle files containing multiple corpora.
 This can be achieved by chaining multiple `python.handwritten_baseline.pipeline.data.loader` sections in the `pipeline` section of a preprocessing YAML config.
 
 Example YAML files for merging the FCC-T and GVC corpora are provided in [`/cdcr/resources/yaml/data_preprocessing/cross_dataset`](resources/yaml/data_preprocessing/cross_dataset): there are six files, two for each split (`train`, `dev` and `train+dev`) to account for allennlp version differences.
 Run `cd /cdcr; resources/scripts/run_fcct_gvc_cross-dataset_preprocessing.sh` to create the FCC-T+GVC pickle files in `/cdcr/working_dir/preprocess_FCC-T_GVC_[split]/`. These files can be used interchangeably in place of other pickle files for training/predicting/optimizing the model.
 
-####Reducing corpus size for debugging
+#### Reducing corpus size for debugging
 It can be useful to reduce the size of a corpus for speeding up debugging sessions. There is a `python.handwritten_baseline.pipeline.data.processing.reducer` preprocessing pipeline stage which can be used for this purpose. See for example [`/cdcr/resources/yaml/data_preprocessing/ecbp/ecbp_dev_pt1_allennlp0.9.0.yaml`](resources/yaml/data_preprocessing/ecbp/ecbp_dev_pt1_allennlp0.9.0.yaml) which contains a commented out configuration for this pipeline stage.  
 
-####Masking mentions
+#### Masking mentions
 The masking of action/participant/time/location mentions or the document publication date (see experiments in section 7.2 in the paper) is achieved with an extra pipeline stage during corpus preprocessing. See for example [`/cdcr/resources/yaml/data_preprocessing/gvc/gvc_test_pt2_allennlp1.0.0.yaml`](resources/yaml/data_preprocessing/gvc/gvc_test_pt2_allennlp1.0.0.yaml) which contains the commented out `python.handwritten_baseline.pipeline.data.processing.masking` pipeline stage for this purpose.
 
-####Exporting corpus statistics
+#### Exporting corpus statistics
 Corpus statistics such as the number of mentions, the distribution of cluster sizes, the number of coreference links per type, and more (see table 1 in the paper) can be exported automatically.
 
 1. Depending on the corpus to export statistics for, run `export CORPUS=ecbp`, `export CORPUS=fcct`, `export CORPUS=fcc`, or `export CORPUS=gvc`.
@@ -219,9 +219,9 @@ Corpus statistics such as the number of mentions, the distribution of cluster si
    ```
 2. See `/cdcr/working_dir/${CORPUS}_stats/` for the results.
 
-###Model implementation
+### Model implementation
 
-####Feature selection
+#### Feature selection
 1. Depending on the corpus to perform feature selection for, run `export CORPUS=ecbp`, `export CORPUS=fcct`, or `export CORPUS=gvc`.
 2. Edit `resources/yaml/feature_selection/${CORPUS}.yaml` and fill in `eval_data_path` with the path to the pickle file of the dev split of the respective corpus. 
 3. Then, run:
@@ -233,7 +233,7 @@ Corpus statistics such as the number of mentions, the distribution of cluster si
    This will perform [recursive feature elimination](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFECV.html) via 6-fold CV over all mention pairs. This process is repeated 7 times with different random seeds, after which the results are aggregated, printed and plotted.
 4. The results land in `/cdcr/working_dir/${CORPUS}_feature_selection`. In order to use the selected features in subsequent experiments, the contents of `selected_features.txt` need to be integrated in a YAML config for hyperparameter optimization or training. The exact destination in those YAML files is under `model` → `features` → `selected_features` (see [`/cdcr/resources/yaml/train/ecbp/ecbp_clustering_xgboost.yaml`](resources/yaml/train/ecbp/ecbp_clustering_xgboost.yaml) for an example). 
 
-####Hyperparameter optimization
+#### Hyperparameter optimization
 Our hyperparameter optimization approach is split into two stages: identifying and optimizing the best mention pair classifier, and (building on top of that) identifying the best hyperparameters for agglomerative clustering.
 The hyperparameter sets are sampled automatically with [optuna](https://optuna.org/). See the `sample_classifier_config_with_optuna` method in [`/cdcr/python/handwritten_baseline/pipeline/model/scripts/train_predict_optimize.py`](python/handwritten_baseline/pipeline/model/scripts/train_predict_optimize.py) for the sampling ranges of each hyperparameter. 
 
@@ -262,12 +262,12 @@ The hyperparameter sets are sampled automatically with [optuna](https://optuna.o
        ```
     3. See `/cdcr/working_dir/${CORPUS}_hyperopt_clustering_${ML}` for the results, particularly the `best_model_config.yaml` file which contains the best identified hyperparameters as in the previous step.
 
-####Document preclustering at test time
+#### Document preclustering at test time
 The system can be evaluated with predefined document clusters at test time.
 This can be achieved by specifying a path to a pickle file for the `hard_document_clusters_file` option in any of the YAML configurations inside [`/cdcr/resources/yaml/evaluate/`](resources/yaml/evaluate).
 The pickle file is expected to contain a list of lists of document identifiers representing the clustering. One such file is produced by the data preprocessing pipeline (named `*_gold_transitive_closure_doc_clustering.pkl `) which contains the gold clustering of the split as defined by the transitive closure over mentions.
 
-####Separate training/evaluation of the mention pair classifier
+#### Separate training/evaluation of the mention pair classifier
 The mention pair classifier component of the system can be evaluated separately (see sections 6.3.2 and 6.3.3 in the paper):
 
 1. Perform steps 1 and 2i of [the hyperparameter optimization instructions](#hyperparameter-optimization).
@@ -318,7 +318,7 @@ The mention pair classifier component of the system can be evaluated separately 
    ```
    The content of `metrics_aggregated_pretty.txt` is logged to stdout upon completion of the script.
 
-####Running baseline experiments
+#### Running baseline experiments
 To reproduce the `lemma`, `lemma-delta` and `lemma-time` baseline experiments (reported in table 5 in the paper):
 1. Depending on which corpus to run baselines for, run `export CORPUS=ecbp`, `export CORPUS=fcct`, or `export CORPUS=gvc`.
 2. Edit `/cdcr/resources/yaml/lemma_baselines/${CORPUS}.yaml` and fill in `train_data_path` and `eval_data_path` with the paths to the pickle files of your preprocessed train and test splits respectively.
@@ -352,12 +352,12 @@ To reproduce the `lemma`, `lemma-delta` and `lemma-time` baseline experiments (r
            └── time                                    # reports of the lemma-time optimization
    ```
 
-##Troubleshooting
+## Troubleshooting
 * This implementation caches the results of several operations to disk to speed up subsequent executions. For example, the corpus preprocessing pipeline caches queries to CoreNLP, DBpedia, the SRL system and more. The training/prediction code caches mention pair features which considerably speeds up hyperparameter optimization. In case of problems (or when modifying these components), it may be necessary to clear the affected caches. Do this by manually removing the corresponding cache folders inside `/cdcr/working_dir/global`. 
 * If you encounter OOM issues during hyperparameter optimization, try reducing `max_cores` in `device_docker.yaml`.
 * Please open a github issue in case of other problems.
 
-##References
+## References
 * ECB+ corpus: http://www.newsreader-project.eu/results/data/the-ecb-corpus/
 * Gun Violence Corpus (GVC): https://github.com/cltl/GunViolenceCorpus
 * CoVal: A coreference evaluation tool for the CoNLL and ARRAU datasets: https://github.com/ns-moosavi/coval
