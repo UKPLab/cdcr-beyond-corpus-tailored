@@ -1,0 +1,24 @@
+global:
+  config_name: fcct_stats
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_token:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/train"
+      token_level_data_dir: "resources/data/football/2020-10-05_FCC-T/train/with_stacked_actions"
+
+      drop_other_event_cluster: False
+
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_token:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/dev"
+      token_level_data_dir: "resources/data/football/2020-10-05_FCC-T/dev/without_stacked_actions"
+
+      drop_other_event_cluster: False
+
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_token:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/test"
+      token_level_data_dir: "resources/data/football/2020-10-05_FCC-T/test/without_stacked_actions"
+
+      drop_other_event_cluster: False
+
+  - python.handwritten_baseline.pipeline.data.processing.statistics:
+      print_examples: True

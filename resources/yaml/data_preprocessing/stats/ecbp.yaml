@@ -1,0 +1,21 @@
+global:
+  config_name: ecbp_stats
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.ecb_loader:
+      path_to_data_split: "resources/data/ecbplus/train"
+
+      sentence_filter_csv: "resources/data/ecbplus/ECBplus_coreference_sentences.csv"
+
+  - python.handwritten_baseline.pipeline.data.loader.ecb_loader:
+      path_to_data_split: "resources/data/ecbplus/valid"
+
+      sentence_filter_csv: "resources/data/ecbplus/ECBplus_coreference_sentences.csv"
+
+  - python.handwritten_baseline.pipeline.data.loader.ecb_loader:
+      path_to_data_split: "resources/data/ecbplus/test"
+
+      sentence_filter_csv: "resources/data/ecbplus/ECBplus_coreference_sentences.csv"
+
+  - python.handwritten_baseline.pipeline.data.processing.statistics:
+      print_examples: True

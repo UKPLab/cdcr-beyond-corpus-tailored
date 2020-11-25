@@ -1,0 +1,21 @@
+global:
+  config_name: gvc_stats
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.gvc_loader:
+      gvc_root_dir: "resources/data/gun_violence"
+      drop_0_cluster: False
+      gvc_split_csv_filename: "train.csv"
+
+  - python.handwritten_baseline.pipeline.data.loader.gvc_loader:
+      gvc_root_dir: "resources/data/gun_violence"
+      drop_0_cluster: False
+      gvc_split_csv_filename: "dev.csv"
+
+  - python.handwritten_baseline.pipeline.data.loader.gvc_loader:
+      gvc_root_dir: "resources/data/gun_violence"
+      drop_0_cluster: False
+      gvc_split_csv_filename: "test.csv"
+
+  - python.handwritten_baseline.pipeline.data.processing.statistics:
+      print_examples: True

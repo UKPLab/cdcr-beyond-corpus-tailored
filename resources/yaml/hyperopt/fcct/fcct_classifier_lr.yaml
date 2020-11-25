@@ -1,0 +1,77 @@
+global:
+  config_name: fcct_hyperopt_classifier_lr
+
+
+model:
+  # Two options here:
+  # (1) When running hyperparameter optimization for the mention pair classifier, this should be a string with the name
+  #     of the classifier to optimize. Accepted values: SVC_huber, LR, XGBoost, MLP
+  # (2) When running hyperparameter optimization for the clustering step, or when training the final model, this should
+  #     be a dict with the type, args and kwargs necessary to instantiate the classifier.
+  classifier: "LR"
+
+  features:
+    # Extractors to use. If null, all extractors will be used with an exception: Extractors listed here which have no
+    # feature selected below will not be instantiated.
+    extractors:
+
+    # Features of each extractor to use. If null, all features will be used.
+    selected_features:
+      # following the results of 29065_2020-08-12_15-26-10
+      - lemma#is-surface-form-identical
+      - lemma#is-lemma-identical
+      - lemma#surface-form-mlinps-distance
+      - lemma#surface-form-levenshtein-distance
+      - tfidf#surrounding-sentence-similarity
+      - time#distance-sentence-level-year
+      - time#distance-closest-overall-level-year
+      - time#distance-closest-overall-level-week
+      - action-phrase-embedding#action-phrase
+      - wikidata-embedding#semantic-role-args-mean
+      - wikidata-embedding#semantic-role-args-variance
+      - wikidata-embedding#semantic-role-args-min
+      - wikidata-embedding#surrounding-sentence-mean
+      - wikidata-embedding#surrounding-sentence-variance
+      - wikidata-embedding#surrounding-sentence-min
+      - wikidata-embedding#sentence-context-variance
+
+data:
+  # paths to preprocessed pickle versions of datasets
+  train_data_path: ""
+  eval_data_path: ""
+
+  # FCC: gold_subtopics. because we have only one topic. Use merge_partitions=true to combine partitions again and
+  #      retain cross-subtopic links.
+  doc_partitioning: "gold_subtopics"
+
+  # if true, use gold labels for advanced mention pair generation
+  oracle_mention_pair_generation: true
+
+  pairs:
+    # mention pair generator settings for training
+    mpg_training:
+      undersample_c: 2
+      neg_to_pos_pair_ratio: 8
+
+    # mention pair generator settings for predicting
+    mpg_prediction:
+      undersample_c: 2
+      neg_to_pos_pair_ratio: 8
+
+hyperopt:
+  # True: optimize agglomerative clustering, False: optimize mention pair classifier
+  with_clustering: False
+
+  # how many repeats to use in repeated k-fold CV
+  cv_num_repeats: 4
+
+  # These have the same behaviour as reported here [1]. Timeout is parsed with pandas. Keep n_trials empty (== None)
+  # and set timeout to try as many configs as possible in the given duration.
+  # [1] https://optuna.readthedocs.io/en/latest/reference/study.html#optuna.study.Study.optimize
+  n_trials:
+  timeout: "24 hours"
+
+  # This setting does unfortunately not work with parallelized optimization!
+#  early_stopping:
+#    patience: 30
+#    min_delta: 0.001

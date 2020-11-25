@@ -1,0 +1,113 @@
+global:
+  config_name: gvc_hyperopt_clustering_xgboost
+
+
+model:
+  # Two options here:
+  # (1) When running hyperparameter optimization for the mention pair classifier, this should be a string with the name
+  #     of the classifier to optimize. Accepted values: SVC_huber, LR, XGBoost, MLP
+  # (2) When running hyperparameter optimization for the clustering step, or when training the final model, this should
+  #     be a dict with the type, args and kwargs necessary to instantiate the classifier.
+
+  # following the results of 26416_2020-07-01_09-26-53
+  classifier:
+    type: ConvenientXGBClassifier
+    fit_params:
+        early_stopping_rounds: 5
+        eval_metric: logloss
+        validation_fraction: 0.1
+        verbose: false
+    kwargs:
+        colsample_bylevel: 0.6812959008940925
+        colsample_bytree: 0.7151887277622264
+        eval_metric: logloss
+        gamma: 0.010120747340610962
+        learning_rate: 0.004993350469240692
+        max_delta_step: 8.221365751234226
+        max_depth: 10
+        min_child_weight: 8.66105636322415
+        n_estimators: 1000
+        n_jobs: 1
+        objective: 'binary:logistic'
+        scale_pos_weight: 1.003460077088747
+        subsample: 0.7524214608050219
+
+  features:
+    # Extractors to use. If null, all extractors will be used with an exception: Extractors listed here which have no
+    # feature selected below will not be instantiated.
+    extractors:
+
+    # Features of each extractor to use. If null, all features will be used.
+    selected_features:
+      # following the results of 29064_2020-08-12_15-26-10
+      - lemma#is-surface-form-identical
+      - lemma#is-lemma-identical
+      - lemma#surface-form-mlinps-distance
+      - lemma#surface-form-levenshtein-distance
+      - tfidf#document-similarity
+      - tfidf#surrounding-sentence-similarity
+      - tfidf#context-similarity
+      - time#distance-sentence-level-week
+      - time#distance-closest-preceding-sentence-level-year
+      - time#distance-closest-preceding-sentence-level-month
+      - time#distance-closest-preceding-sentence-level-week
+      - time#distance-closest-preceding-sentence-level-day
+      - time#distance-closest-overall-level-year
+      - time#distance-closest-overall-level-month
+      - time#distance-closest-overall-level-week
+      - time#distance-document-level-month
+      - time#distance-document-level-week
+      - time#distance-document-level-day
+      - time#distance-document-publish-level-month
+      - time#distance-document-publish-level-week
+      - time#distance-document-publish-level-day
+      - location#closest-preceding-sentence-level-geo-hierarchy-match
+      - sentence-embedding#surrounding-sentence
+      - sentence-embedding#doc-start
+      - action-phrase-embedding#action-phrase
+      - wikidata-embedding#surrounding-sentence-min
+      - wikidata-embedding#sentence-context-mean
+      - wikidata-embedding#sentence-context-variance
+      - wikidata-embedding#sentence-context-min
+      - wikidata-embedding#sentence-context-max
+      - wikidata-embedding#doc-start-mean
+      - wikidata-embedding#doc-start-variance
+      - wikidata-embedding#doc-start-min
+      - wikidata-embedding#doc-start-max
+
+data:
+  # paths to preprocessed pickle versions of datasets
+  train_data_path: ""
+  eval_data_path: ""
+
+  # GVC: gold_subtopics, because subtopics were annotated individually
+  doc_partitioning: "gold_subtopics"
+
+  # if true, use gold labels for advanced mention pair generation
+  oracle_mention_pair_generation: true
+
+  pairs:
+    # mention pair generator settings for training
+    mpg_training:
+      undersample_c: 8
+      neg_to_pos_pair_ratio: 8
+
+    # mention pair generator settings for predicting
+    mpg_prediction:
+
+hyperopt:
+  with_clustering: true
+
+  # how many repeats to use in repeated k-fold CV
+  cv_num_repeats: 4
+
+  # These have the same behaviour as reported here [1]. Timeout is parsed with pandas. Keep n_trials empty (== None)
+  # and set timeout to try as many configs as possible in the given duration.
+  # [1] https://optuna.readthedocs.io/en/latest/reference/study.html#optuna.study.Study.optimize
+  n_trials:
+  timeout: "24 hours"
+
+  # This setting does unfortunately not work with parallelized optimization!
+#  early_stopping:
+#    patience: 30
+#    min_delta: 0.001

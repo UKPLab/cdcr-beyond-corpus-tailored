@@ -1,0 +1,87 @@
+global:
+  config_name: fcct_training_classifier_xgboost
+
+
+model:
+  # Two options here:
+  # (1) When running hyperparameter optimization for the mention pair classifier, this should be a string with the name
+  #     of the classifier to optimize. Accepted values: SVC_huber, LR, XGBoost, MLP
+  # (2) When running hyperparameter optimization for the clustering step, or when training the final model, this should
+  #     be a dict with the type, args and kwargs necessary to instantiate the classifier.
+
+  # following the results of 26415_2020-07-01_09-26-43
+  classifier:
+    type: ConvenientXGBClassifier
+    fit_params:
+      early_stopping_rounds: 5
+      eval_metric: logloss
+      validation_fraction: 0.1
+      verbose: false
+    kwargs:
+      colsample_bylevel: 0.5933574417674103
+      colsample_bytree: 0.6601353044436857
+      eval_metric: logloss
+      gamma: 0.010015994430179075
+      learning_rate: 0.01186851256426371
+      max_delta_step: 1.0282600722640742
+      max_depth: 9
+      min_child_weight: 4.691141784090348
+      n_estimators: 1000
+      n_jobs: 1
+      objective: 'binary:logistic'
+      scale_pos_weight: 1.0178044967182944
+      subsample: 0.8910956077853077
+
+  features:
+    # Extractors to use. If null, all extractors will be used with an exception: Extractors listed here which have no
+    # feature selected below will not be instantiated.
+    extractors:
+
+    # Features of each extractor to use. If null, all features will be used.
+    selected_features:
+      # following the results of 29065_2020-08-12_15-26-10
+      - lemma#is-surface-form-identical
+      - lemma#is-lemma-identical
+      - lemma#surface-form-mlinps-distance
+      - lemma#surface-form-levenshtein-distance
+      - tfidf#surrounding-sentence-similarity
+      - time#distance-sentence-level-year
+      - time#distance-closest-overall-level-year
+      - time#distance-closest-overall-level-week
+      - action-phrase-embedding#action-phrase
+      - wikidata-embedding#semantic-role-args-mean
+      - wikidata-embedding#semantic-role-args-variance
+      - wikidata-embedding#semantic-role-args-min
+      - wikidata-embedding#surrounding-sentence-mean
+      - wikidata-embedding#surrounding-sentence-variance
+      - wikidata-embedding#surrounding-sentence-min
+      - wikidata-embedding#sentence-context-variance
+
+data:
+  # paths to preprocessed pickle versions of datasets
+  train_data_path: ""
+
+  # do not partition (only relevant when CV is used)
+  doc_partitioning:
+
+  # if true, use gold labels for advanced mention pair generation
+  oracle_mention_pair_generation: true
+
+  pairs:
+    # mention pair generator settings for training
+    mpg_training:
+      undersample_c: 2
+      neg_to_pos_pair_ratio: 8
+
+    # mention pair generator settings for predicting
+    mpg_prediction:
+
+training:
+  # this is only supported for some models (XGBoost)
+  analyze_feature_importance: true
+
+  # if True, create system with agglomerative clustering, if False, only trains a mention pair classifier
+  with_clustering: False
+
+  # train n models with different random seeds for reporting score distributions
+  num_models_to_train: 5

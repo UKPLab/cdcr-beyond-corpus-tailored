@@ -1,0 +1,21 @@
+global:
+  config_name: gvc_feature_selection
+
+
+data:
+  # paths to preprocessed pickle versions of datasets
+  eval_data_path: ""
+
+  # if true, use gold labels for advanced mention pair generation
+  oracle_mention_pair_generation: true
+
+  pairs:
+    # mention pair generator settings for training
+    mpg_training:
+      undersample_c: 8
+      neg_to_pos_pair_ratio: 8
+
+    # mention pair generator settings for predicting
+    mpg_prediction:
+      undersample_c: 8
+      neg_to_pos_pair_ratio: 8

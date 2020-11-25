@@ -1,0 +1,23 @@
+global:
+  config_name: preprocess_ECBP_test
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.ecb_loader:
+      path_to_data_split: "resources/data/ecbplus/test"
+      sentence_filter_csv: "resources/data/ecbplus/ECBplus_coreference_sentences.csv"
+
+#  - python.handwritten_baseline.pipeline.data.processing.reducer:
+#      num_topics: 8
+#      num_docs_per_topic: 25
+
+  - python.handwritten_baseline.pipeline.data.processing.corenlp_pos_ner:
+      mode: extend
+
+  - python.handwritten_baseline.pipeline.data.processing.timex_parse:
+
+  - python.handwritten_baseline.pipeline.data.processing.entity_linking.dbpedia_spotlight:
+      mode: extend
+
+  - python.handwritten_baseline.pipeline.data.processing.entity_linking.location_enhance:
+
+  - python.handwritten_baseline.pipeline.data.processing.srl:

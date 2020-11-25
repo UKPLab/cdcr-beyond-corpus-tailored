@@ -1,0 +1,3 @@
+-r base.txt
+
+allennlp==0.9.0

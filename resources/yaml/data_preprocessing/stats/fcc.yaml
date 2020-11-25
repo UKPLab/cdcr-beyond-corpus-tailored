@@ -1,0 +1,15 @@
+global:
+  config_name: fcc_stats
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_sentence:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/train"
+
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_sentence:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/dev"
+
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_sentence:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/test"
+
+  - python.handwritten_baseline.pipeline.data.processing.statistics:
+      print_examples: True

@@ -1,0 +1,34 @@
+{
+    "dataset_reader": {
+        "type": "span_embedder",
+        "token_indexers": {
+            "tokens": {
+                "type": "pretrained_transformer_mismatched",
+                "max_length": 512,
+                "model_name": "SpanBERT/spanbert-large-cased"
+            }
+        },
+        "lazy": true
+    },
+    "model": {
+        "type": "span_embedder",
+        "text_field_embedder": {
+            "token_embedders": {
+                "tokens": {
+                    "type": "pretrained_transformer_mismatched",
+                    "max_length": 512,
+                    "model_name": "SpanBERT/spanbert-large-cased"
+                }
+            }
+        },
+        "span_extractor": {
+            "type": "endpoint",
+            "input_dim": 1024
+        }
+    },
+    "iterator": {
+        "type": "basic",
+        "batch_size": 1
+    },
+    "trainer": {}
+}

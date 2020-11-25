@@ -1,0 +1,15 @@
+global:
+  config_name: fcct_lemma_baselines
+
+
+data:
+  # paths to preprocessed pickle versions of datasets
+  train_data_path: ""
+  # test set:
+  eval_data_path: ""
+
+baselines:
+  - lemma
+  - lemma-wd
+  - lemma-delta
+  - lemma-time

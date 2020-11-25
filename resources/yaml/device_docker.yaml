@@ -1,0 +1,40 @@
+global:
+  device_name: "docker"
+  max_cores: 4
+
+  logging:
+    level_console: DEBUG
+    level_file: DEBUG
+
+  working_dir: "/cdcr/working_dir"
+
+corenlp:
+  corenlp_home: "/cdcr/resources/corenlp/stanford-corenlp-full-2018-10-05"
+
+  # these kwargs are passed to the constructor of stanfordnlp.server.client.CoreNLPClient
+  corenlp_kwargs:
+    # use local CoreNLP...
+    annotators: "tokenize,pos,lemma,ner"
+    outputFormat: "serialized"
+    serializer: "edu.stanford.nlp.pipeline.ProtobufAnnotationSerializer"
+
+    # ...or use a remote CoreNLP server
+#    start_server: False
+#    endpoint: "http://1.2.3.4:9000"
+
+dbpedia:
+  # public endpoint, rate limited
+  sparql_endpoint: "http://dbpedia.org/sparql"
+  graph_iri: "http://dbpedia.org"
+
+  wait_between_requests_seconds: 1.0
+
+dbpedia_spotlight:
+  # public DBPedia, rate limited
+  endpoint: "https://api.dbpedia-spotlight.org/en/annotate"
+
+  wait_between_requests_seconds: 1.0
+
+  # DBPedia spotlight query options
+  confidence: 0.7
+  support: 0

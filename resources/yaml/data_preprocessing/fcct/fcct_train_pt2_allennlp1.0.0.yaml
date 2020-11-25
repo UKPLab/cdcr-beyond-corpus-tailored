@@ -1,0 +1,40 @@
+global:
+  config_name: preprocess_FCC-T_train
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_token:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/train"
+      token_level_data_dir: "resources/data/football/2020-10-05_FCC-T/train/with_stacked_actions"
+
+      drop_other_event_cluster: True
+
+#  - python.handwritten_baseline.pipeline.data.processing.reducer:
+#      num_topics: 2
+#      num_docs_per_topic: 25
+
+  - python.handwritten_baseline.pipeline.data.processing.corenlp_pos_ner:
+      mode: extend
+
+  - python.handwritten_baseline.pipeline.data.processing.timex_parse:
+
+  - python.handwritten_baseline.pipeline.data.processing.entity_linking.dbpedia_spotlight:
+      mode: extend
+
+  - python.handwritten_baseline.pipeline.data.processing.entity_linking.location_enhance:
+
+#  - python.handwritten_baseline.pipeline.data.processing.masking:
+#      event_components_to_mask: ["action", "participants", "time", "publish_date", "location"]
+
+  - python.handwritten_baseline.pipeline.data.processing.feature_preparation.wikidata_embeddings:
+      json_index: "resources/wikidata_embeddings/wikidata_translation_v1_names.json"
+      embedding_npy: "resources/wikidata_embeddings/wikidata_translation_v1_vectors.npy"
+
+  - python.handwritten_baseline.pipeline.data.processing.feature_preparation.sentence_bert_embeddings:
+      pretrained_model_name: "distilbert-base-nli-stsb-mean-tokens"
+
+  - python.handwritten_baseline.pipeline.data.processing.feature_preparation.action_phrase_embeddings:
+      model: "resources/spanbert/model.tar.gz"
+
+  - python.handwritten_baseline.pipeline.data.processing.dataset_exporter:
+      dataset_name: fcct
+      split: train

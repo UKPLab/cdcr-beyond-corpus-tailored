@@ -1,0 +1,21 @@
+global:
+  config_name: fcct_evaluate_clustering
+
+
+data:
+  # paths to preprocessed pickle versions of datasets
+  eval_data_path: ""
+
+  # at evaluation time, we don't want to use gold information for document clustering, i.e. leave this empty
+  doc_partitioning:
+
+  # if true, use gold labels for advanced mention pair generation
+  oracle_mention_pair_generation: false
+
+evaluate:
+  # this option can only be (optionally) specified for clustering pipelines!
+  hard_document_clusters_file:
+
+  # these options only work on mention pair classifier pipelines!
+  perform_prediction_analysis: false
+  num_samples_per_quadrant: 20
