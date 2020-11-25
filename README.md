@@ -1,5 +1,5 @@
 # Cross-Document Event Coreference Resolution Beyond Corpus-Tailored Systems
-This repository contains the code for reproducing the results of our paper: *arXiv URL tba*
+This repository contains the code for reproducing the results of our paper: http://arxiv.org/abs/2011.12249
 
 It contains:
 - our cross-document event coreference resolution (CDCR) system implementation
@@ -9,11 +9,16 @@ It contains:
 - [the annotation guidelines used](guidelines/)
 
 For obtaining the **Football Coreference Corpus (FCC)**, please visit https://tudatalib.ulb.tu-darmstadt.de/handle/tudatalib/2305
-**FCC-T will be added under the same URL in a matter of days.**
 
-Please cite this work as follows:
+Please cite our work as follows:
 ```
-tba
+@article{bugert2020crossdocument,
+  title={Cross-Document Event Coreference Resolution Beyond Corpus-Tailored Systems},
+  author={Michael Bugert and Nils Reimers and Iryna Gurevych},
+  journal={arXiv},
+  year={2020},
+  url={https://arxiv.org/abs/2011.12249}
+}
 ```
 
 > **Abstract:** Cross-document event coreference resolution (CDCR) is an NLP task in which mentions of events need to be identified and clustered throughout a collection of documents.
