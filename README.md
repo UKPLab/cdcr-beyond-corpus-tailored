@@ -1,5 +1,5 @@
 # Generalizing Cross-Document Event Coreference Resolution Across Multiple Corpora
-This repository contains the code for reproducing the results of our [Computational Linguistics article](https://direct.mit.edu/coli/article/doi/10.1162/coli_a_00407/102774/Generalizing-Cross-Document-Event-Coreference) ([arXiv preprint](https://arxiv.org/abs/2011.12249)).
+This repository contains the code for reproducing the results of our [Computational Linguistics article](https://direct.mit.edu/coli/article/47/3/575/102774/Generalizing-Cross-Document-Event-Coreference) which was presented at [EMNLP 2021](https://2021.emnlp.org/).
 
 It contains:
 - our cross-document event coreference resolution (CDCR) system implementation
@@ -10,18 +10,25 @@ It contains:
 
 For obtaining the **Football Coreference Corpus (FCC)**, please visit https://tudatalib.ulb.tu-darmstadt.de/handle/tudatalib/2305
 
-**Until the CL version is officially released**, please cite our work as follows:
+Please cite our work as follows:
 ```
-@article{bugert2020crossdocument,
-  title={Cross-Document Event Coreference Resolution Beyond Corpus-Tailored Systems},
-  author={Michael Bugert and Nils Reimers and Iryna Gurevych},
-  journal={arXiv},
-  year={2020},
-  url={https://arxiv.org/abs/2011.12249}
+@article{bugert2021crossdocument,
+    author = {Bugert, Michael and Reimers, Nils and Gurevych, Iryna},
+    title = {{Generalizing Cross-Document Event Coreference Resolution Across Multiple Corpora}},
+    journal = {Computational Linguistics},
+    volume = {47},
+    number = {3},
+    pages = {575-614},
+    year = {2021},
+    month = {11},
+    issn = {0891-2017},
+    doi = {10.1162/coli_a_00407},
+    url = {https://doi.org/10.1162/coli\_a\_00407},
+    eprint = {https://direct.mit.edu/coli/article-pdf/47/3/575/1971857/coli\_a\_00407.pdf},
 }
 ```
 
-> **Abstract:** Cross-document event coreference resolution (CDCR) is an NLP task in which mentions of events need to be identified and clustered throughout a collection of documents. CDCR aims to benefit downstream multidocument applications, but despite recent progress on corpora and system development, downstream improvements from applying CDCR have not been shown yet. We make the observation that every CDCR system to date was developed, trained, and tested only on a single respective corpus. This raises strong concerns on their generalizability–a must-have for downstream applications where the magnitude of domains or event mentions is likely to exceed those found in a curated corpus. To investigate this assumption, we define a uniform evaluation setup involving three CDCR corpora: ECB+, the Gun Violence Corpus, and the Football Coreference Corpus (which we reannotate on token level to make our analysis possible).We compare a corpus-independent, feature-based system against a recent neural system developed for ECB+. Although being inferior in absolute numbers, the feature-based system shows more consistent performance across all corpora whereas the neural system is hit-or-miss. Via model introspection, we find that the importance of event actions, event time, and so forth, for resolving coreference in practice varies greatly between the corpora. Additional analysis shows that several systems overfit on the structure of the ECB+ corpus. We conclude with recommendations on how to achieve generally applicable CDCR systems in the future–the most important being that evaluation on multiple CDCR corpora is strongly necessary. To facilitate future research, we release our dataset, annotation guidelines, and system implementation to the public.
+> **Abstract:** Cross-document event coreference resolution (CDCR) is an NLP task in which mentions of events need to be identified and clustered throughout a collection of documents. CDCR aims to benefit downstream multidocument applications, but despite recent progress on corpora and system development, downstream improvements from applying CDCR have not been shown yet. We make the observation that every CDCR system to date was developed, trained, and tested only on a single respective corpus. This raises strong concerns on their generalizability—a must-have for downstream applications where the magnitude of domains or event mentions is likely to exceed those found in a curated corpus. To investigate this assumption, we define a uniform evaluation setup involving three CDCR corpora: ECB+, the Gun Violence Corpus, and the Football Coreference Corpus (which we reannotate on token level to make our analysis possible). We compare a corpus-independent, feature-based system against a recent neural system developed for ECB+. Although being inferior in absolute numbers, the feature-based system shows more consistent performance across all corpora whereas the neural system is hit-or-miss. Via model introspection, we find that the importance of event actions, event time, and so forth, for resolving coreference in practice varies greatly between the corpora. Additional analysis shows that several systems overfit on the structure of the ECB+ corpus. We conclude with recommendations on how to achieve generally applicable CDCR systems in the future—the most important being that evaluation on multiple CDCR corpora is strongly necessary. To facilitate future research, we release our dataset, annotation guidelines, and system implementation to the public.
 
 Contact person: Michael Bugert
 
@@ -33,15 +40,27 @@ https://tu-darmstadt.de
 
 ## Contents
 
-* [Setup](#setup)
-* [Reproducing our results](#reproducing-our-results)
-    * [ECB+](#ecb)
-    * [FCC-T and GVC](#fcc-t-and-gvc)
-* [Instructions for other experiments](#instructions-for-other-experiments)
-    * [Corpus preprocessing options](#corpus-preprocessing-options)
-    * [Model implementation (feature selection, hyperparameter optimization, baselines)](#model-implementation)
-* [Troubleshooting](#troubleshooting)
-* [References](#references)
+- [Contents](#contents)
+- [Setup](#setup)
+    - [Requirements](#requirements)
+    - [Preparatory steps](#preparatory-steps)
+- [Reproducing our results](#reproducing-our-results)
+    - [ECB+](#ecb)
+    - [FCC-T and GVC](#fcc-t-and-gvc)
+- [Instructions for other experiments](#instructions-for-other-experiments)
+    - [Corpus preprocessing options](#corpus-preprocessing-options)
+        - [Merging corpora](#merging-corpora)
+        - [Reducing corpus size for debugging](#reducing-corpus-size-for-debugging)
+        - [Masking mentions](#masking-mentions)
+        - [Exporting corpus statistics](#exporting-corpus-statistics)
+    - [Model implementation](#model-implementation)
+        - [Feature selection](#feature-selection)
+        - [Hyperparameter optimization](#hyperparameter-optimization)
+        - [Document preclustering at test time](#document-preclustering-at-test-time)
+        - [Separate training/evaluation of the mention pair classifier](#separate-trainingevaluation-of-the-mention-pair-classifier)
+        - [Running baseline experiments](#running-baseline-experiments)
+- [Troubleshooting](#troubleshooting)
+- [References](#references)
 
 ## Setup
 
