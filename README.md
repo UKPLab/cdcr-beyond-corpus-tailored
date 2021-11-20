@@ -23,7 +23,7 @@ Please cite our work as follows:
     month = {11},
     issn = {0891-2017},
     doi = {10.1162/coli_a_00407},
-    url = {https://doi.org/10.1162/coli\_a\_00407},
+    url = {https://doi.org/10.1162/coli_a_00407},
     eprint = {https://direct.mit.edu/coli/article-pdf/47/3/575/1971857/coli\_a\_00407.pdf},
 }
 ```
