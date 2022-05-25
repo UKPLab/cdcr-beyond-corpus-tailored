@@ -80,12 +80,11 @@ Please note that using the public endpoints will produce preprocessed corpora di
 [We provide our preprocessed corpora for reference.](archive/)
 
 ### Preparatory steps
-1. Clone this project, open a terminal in the project root and run
+1. Open a terminal and run
    ```bash
-   docker build -t cdcr .
-   docker run --name cdcr-container -it cdcr bash
+   docker run --name cdcr-container -it mbugert/cdcr-beyond-corpus-tailored
    ```
-   This opens a shell in a docker container in which all experiments can be performed. You can `exit` this container. When you want to return to it, run `docker start cdcr-container; docker attach cdcr-container`. 
+   This opens a shell in a docker container in which all experiments can be performed. To detach it (without stopping the container), press Ctrl+p, Ctrl+q in sequence. Use `docker attach cdcr-container` to re-attach.
 2. In the container, run
     ```bash
    make -f resources/scripts/prepare.makefile
