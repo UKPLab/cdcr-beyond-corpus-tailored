@@ -1,0 +1,36 @@
+global:
+  config_name: hypercoref_stats_cnbc.com
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.hyperlinks_loader:
+      page_infos: "resources/data/hypercoref/cnbc.com/train/page_infos.parquet"
+      tokens: "resources/data/hypercoref/cnbc.com/train/tokens.parquet"
+      hyperlinks: "resources/data/hypercoref/cnbc.com/train/hyperlinks.parquet"
+
+  - python.handwritten_baseline.pipeline.data.loader.hyperlinks_loader:
+      page_infos: "resources/data/hypercoref/cnbc.com/dev/page_infos.parquet"
+      tokens: "resources/data/hypercoref/cnbc.com/dev/tokens.parquet"
+      hyperlinks: "resources/data/hypercoref/cnbc.com/dev/hyperlinks.parquet"
+
+  - python.handwritten_baseline.pipeline.data.loader.hyperlinks_loader:
+      page_infos: "resources/data/hypercoref/cnbc.com/test/page_infos.parquet"
+      tokens: "resources/data/hypercoref/cnbc.com/test/tokens.parquet"
+      hyperlinks: "resources/data/hypercoref/cnbc.com/test/hyperlinks.parquet"
+
+  - python.handwritten_baseline.pipeline.data.processing.reducer:
+      drop_sentences_without_action_mentions: True
+
+  - python.handwritten_baseline.pipeline.data.processing.corenlp_pos_ner:
+      mode: extend
+      keep_dependency_trees: True
+      keep_constituency_trees: True
+
+  - python.handwritten_baseline.pipeline.data.processing.statistics:
+      write_general_statistics: True
+      write_stacked_annotations: True
+      write_selection_of_clusters: True
+      write_selection_of_full_documents: True
+      write_most_common_phrase_types_of_mentions: True
+      write_action_mention_span_length: True
+      write_phrase_head_statistics: True
+      write_mention_pos_occurrence: False

@@ -1,0 +1,14 @@
+global:
+  config_name: preprocess_gg_fcc-t_dev
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_token:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/dev"
+      token_level_data_dir: "resources/data/football/2020-10-05_FCC-T/dev/without_stacked_actions"
+
+      drop_other_event_cluster: True
+
+  - python.handwritten_baseline.pipeline.data.processing.dataset_exporter:
+      dataset_name: gg_fcct
+      split: dev
+      export_in_cattan_format_as_well: True

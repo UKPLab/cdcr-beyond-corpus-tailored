@@ -1,0 +1,63 @@
+global:
+  config_name: preprocess_ss_wired_25k
+
+pipeline:
+
+  # load all the dev and test splits of CDCR datasets (this will merge them into one dataset)
+
+  # ECB+
+  - python.handwritten_baseline.pipeline.data.loader.ecb_loader:
+      path_to_data_split: "resources/data/ecbplus/valid"
+      sentence_filter_csv: "resources/data/ecbplus/ECBplus_coreference_sentences.csv"
+  - python.handwritten_baseline.pipeline.data.loader.ecb_loader:
+      path_to_data_split: "resources/data/ecbplus/test"
+      sentence_filter_csv: "resources/data/ecbplus/ECBplus_coreference_sentences.csv"
+
+  # FCC-T
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_token:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/dev"
+      token_level_data_dir: "resources/data/football/2020-10-05_FCC-T/dev/without_stacked_actions"
+      drop_other_event_cluster: True
+  - python.handwritten_baseline.pipeline.data.loader.fcc_loader_token:
+      sentence_level_data_dir: "resources/data/football/2020-10-05_FCC_cleaned/test"
+      token_level_data_dir: "resources/data/football/2020-10-05_FCC-T/test/without_stacked_actions"
+      drop_other_event_cluster: True
+
+  # GVC
+  - python.handwritten_baseline.pipeline.data.loader.gvc_loader:
+      gvc_root_dir: "resources/data/gun_violence"
+      gvc_split_csv_filename: "dev.csv"
+      drop_0_cluster: True
+  - python.handwritten_baseline.pipeline.data.loader.gvc_loader:
+      gvc_root_dir: "resources/data/gun_violence"
+      gvc_split_csv_filename: "test.csv"
+      drop_0_cluster: True
+
+  # load hyperlink data, and use the 'difference' operation to remove all hyperlinks documents which are similar to
+  # the datasets loaded prior
+  - python.handwritten_baseline.pipeline.data.loader.hyperlinks_loader:
+      page_infos: "resources/data/hypercoref/wired.com/dev/page_infos.parquet"
+      tokens: "resources/data/hypercoref/wired.com/dev/tokens.parquet"
+      hyperlinks: "resources/data/hypercoref/wired.com/dev/hyperlinks.parquet"
+
+      # this here is crucial!
+      combine_operation: "difference"
+      combine_difference_threshold: 0.25
+
+  - python.handwritten_baseline.pipeline.data.processing.reducer:
+      event_cluster_size_interval_to_keep: [2, 10]
+
+  - python.handwritten_baseline.pipeline.data.processing.hyperlinks_hack:
+      constituency: "resources/data/hypercoref/wired.com/constituency.hdf"
+      dependency: "resources/data/hypercoref/wired.com/dependency.hdf"
+
+      drop_phrasal_mentions: False
+      reduce_span_to_dependency_head: True
+
+      target_num_docs_per_fake_topic: 50
+      total_mentions_limit: 25000
+
+  - python.handwritten_baseline.pipeline.data.processing.dataset_exporter:
+      dataset_name: ss_wired_25k
+      split: dev
+      export_in_cattan_format_as_well: True

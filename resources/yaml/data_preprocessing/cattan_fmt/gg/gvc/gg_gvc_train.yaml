@@ -1,0 +1,13 @@
+global:
+  config_name: preprocess_gg_gvc_train
+
+pipeline:
+  - python.handwritten_baseline.pipeline.data.loader.gvc_loader:
+      gvc_root_dir: "resources/data/gun_violence"
+      drop_0_cluster: True
+      gvc_split_csv_filename: "train.csv"
+
+  - python.handwritten_baseline.pipeline.data.processing.dataset_exporter:
+      dataset_name: gg_gvc
+      split: train
+      export_in_cattan_format_as_well: True

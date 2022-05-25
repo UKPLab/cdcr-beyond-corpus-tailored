@@ -3,6 +3,10 @@
 venv
 venv_allennlp_0.9.0/
 venv_allennlp_1.0.0/
+resources/
+!resources/requirements/*
+!resources/scripts/*
+!resources/yaml/*
 working_dir/
 
 # Byte-compiled / optimized / DLL files

@@ -1,3 +1,4 @@
+anytree==2.8.0
 Click==7.0
 diskcache==4.0.0
 eli5==0.10.1
@@ -5,13 +6,15 @@ ftfy==5.6
 geopy==1.21.0
 ijson==3.0.3
 joblib==0.15.1
+kahypar==1.1.6
 matplotlib==3.0.2
 more-itertools==8.3.0
 mosestokenizer==1.1.0
 numpy==1.17.3
 optuna==1.5.0
 overrides>=2.0
-pandas==1.0.4
+pandas==1.1.5
+pyarrow==3.0.0
 pyspotlight==0.7.2
 python-constraint==1.4.0
 python-dateutil==2.8.0
@@ -24,6 +27,7 @@ sentence-transformers==0.2.6.1
 slurmee==0.1.0rc3
 SPARQLWrapper==1.8.5
 stanfordnlp==0.2.0
+tables==3.6.1
 tabulate==0.8.5
 textdistance==4.1.5
 toposort==1.5

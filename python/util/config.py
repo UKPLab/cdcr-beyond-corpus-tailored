@@ -95,8 +95,8 @@ def set_up_dir_structure(config):
 
     # if running on slurm:
     if slurm_job_id is not None:
-        # use as many CPU cores as there are available
-        config_global[MAX_CORES] = slurmee.get_cpus_on_node()
+        # use as many CPU cores as there are available, times 2 for hyperthreading
+        config_global[MAX_CORES] = slurmee.get_cpus_on_node() * 2
 
         # if running inside job array
         if job_array_info is not None:

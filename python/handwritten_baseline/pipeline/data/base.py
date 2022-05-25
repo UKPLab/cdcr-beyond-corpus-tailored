@@ -1,12 +1,16 @@
-from typing import Optional, Dict, Any, List
+import itertools
+import traceback
+from typing import Optional, Dict, Any, List, Iterable
 
 import numpy as np
 import pandas as pd
 import pandas.api.types as ptypes
-import traceback
+import scipy.sparse
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 from python import TOPIC_ID, SUBTOPIC, DOCUMENT_ID, MENTION_TYPE, MENTION_TYPES_ACTION, MENTION_TYPES_TIME, \
-    MENTION_TYPES_LOCATION, MENTION_TYPES_PARTICIPANTS
+    MENTION_TYPES_LOCATION, MENTION_TYPES_PARTICIPANTS, TOKEN
 from python.pipeline.pipeline import PipelineStage
 from python.util.pandas import are_dataframe_indices_compatible
 
@@ -238,6 +242,46 @@ class Dataset:
                           semantic_roles=semantic_roles)
         return dataset
 
+    @classmethod
+    def difference(cls, minuend: "Dataset", subtrahend: "Dataset", threshold: float) -> "Dataset":
+        """
+        From minuend dataset, removes documents which are too similar to documents from the subtrahend dataset.
+        """
+        if threshold < 0 or threshold > 1:
+            raise ValueError
+
+        # train TF-IDF on all documents: make iterable list of space-separated tokenized documents and fit TFIDF on it
+        get_list_of_docs_from_tokens_df = lambda df: df[TOKEN].groupby(DOCUMENT_ID, sort=False).apply(lambda ser: " ".join(ser.values)).values.tolist()
+        doc_iterator = itertools.chain(get_list_of_docs_from_tokens_df(minuend.tokens), get_list_of_docs_from_tokens_df(subtrahend.tokens)) # type: Iterable[str]
+        vectorizer = TfidfVectorizer(tokenizer=str.split, lowercase=True, token_pattern=None, min_df=3, ngram_range=(1, 3), stop_words="english")
+        vectorizer.fit(doc_iterator)
+
+        # per subtopic in subtrahend, concatenate all documents and determine TF-IDF vector
+        vectorized_subtopics = []
+        for (_, _), docs in subtrahend.documents.groupby([TOPIC_ID, SUBTOPIC]):
+            tokens_of_subtopic = subtrahend.tokens[TOKEN].loc[docs.index.unique(DOCUMENT_ID)]
+            doc_of_subtopic = " ".join(tokens_of_subtopic.values)
+            vectorized_subtopics.append(vectorizer.transform([doc_of_subtopic]))
+        vectorized_subtopics = scipy.sparse.vstack(vectorized_subtopics)
+
+        # per document in minuend, determine cosine sim to all subtopics: if any is higher than thresh, mark the doc
+        removal_candidates = minuend.tokens[TOKEN].groupby(DOCUMENT_ID).apply(lambda ser: " ".join(ser.values))
+        removal_candidates_vectorized = vectorizer.transform(removal_candidates.values)
+        similarities = cosine_similarity(removal_candidates_vectorized, vectorized_subtopics)
+        removal_candidates_keep = np.all((similarities < threshold), axis=1)
+        docs_to_keep = removal_candidates.index[removal_candidates_keep]
+
+        # apply document filter
+        # TODO filter other mention kinds, semantic roles, too
+        result_documents = minuend.documents.loc[minuend.documents.index.get_level_values(DOCUMENT_ID).isin(docs_to_keep)]
+        result_tokens = minuend.tokens.loc[docs_to_keep]
+        result_mentions_action = minuend.mentions_action.loc[minuend.mentions_action.index.get_level_values(DOCUMENT_ID).isin(docs_to_keep)]
+
+        result = Dataset(result_documents,
+                         result_tokens,
+                         result_mentions_action)
+        return result
+
 
 DATA_SRC_PATH = "data_src_path"
 DATASET = "dataset"
@@ -252,8 +296,17 @@ class BaselineDataLoaderStage(PipelineStage):
     will be merged.
     """
 
+    UNION = "union"
+    DIFFERENCE = "difference"
+
     def __init__(self, pos, config, config_global, logger):
         super(BaselineDataLoaderStage, self).__init__(pos, config, config_global, logger)
+
+        # how to handle an existing dataset in the pipeline after having loaded this stage's dataset: MERGE merges
+        # datasets together, DIFFERENCE removes documents loaded in this stage which are too similar to documents from
+        # preceding stages
+        self.combine_operation = config.get("combine_operation", BaselineDataLoaderStage.UNION)
+        self.combine_difference_threshold = config.get("combine_difference_threshold", 0.75)
 
     def _load_dataset(self) -> Dataset:
         raise NotImplementedError
@@ -262,7 +315,18 @@ class BaselineDataLoaderStage(PipelineStage):
         dataset = self._load_dataset()
 
         if DATASET in live_objects:
-            dataset = Dataset.merge(live_objects[DATASET], dataset)
+            if self.combine_operation == BaselineDataLoaderStage.UNION:
+                self.logger.info("A dataset exists in the pipeline. Will create the union with the dataset just loaded.")
+                dataset = Dataset.merge(live_objects[DATASET], dataset)
+            elif self.combine_operation == BaselineDataLoaderStage.DIFFERENCE:
+                self.logger.info("A dataset exists in the pipeline. Will subtract the existing dataset from the dataset just loaded.")
+                num_docs_before = len(dataset.documents)
+                dataset = Dataset.difference(dataset, live_objects[DATASET], threshold=self.combine_difference_threshold)
+                num_docs_after = len(dataset.documents)
+                if num_docs_after != num_docs_before:
+                    self.logger.info(f"Subtraction reduced the number of documents from {num_docs_before} to {num_docs_after}.")
+            else:
+                raise ValueError(f"Unknown combine operation {self.combine_operation}.")
 
         live_objects[DATASET] = dataset
 

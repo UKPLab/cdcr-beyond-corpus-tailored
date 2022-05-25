@@ -18,6 +18,10 @@ MENTION_TYPE = "mention-type"
 DESCRIPTION = "description"
 PUBLISH_DATE = "publish-date"
 
+# extra parsing columns
+CONSTITUENCY_TREE = "constituency-tree-bytes"
+DEPENDENCY_TREE = "dependency-tree-bytes"
+
 # specifics for span-based data
 CHARS_START = "chars-start"
 CHARS_END = "chars-end"

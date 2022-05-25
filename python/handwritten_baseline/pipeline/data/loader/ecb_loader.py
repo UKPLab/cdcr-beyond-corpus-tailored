@@ -4,7 +4,8 @@ from typing import List, Optional
 from overrides import overrides
 
 from python import MENTION_TYPE, TOKEN_IDX_TO, TOKEN_IDX_FROM, TOPIC_ID, DOCUMENT_ID, EVENT, ENTITY, \
-    MENTION_TYPES_ACTION, MENTION_TYPES_TIME, MENTION_TYPES_LOCATION, MENTION_TYPES_PARTICIPANTS, HUMAN_PART_GPE
+    MENTION_TYPES_ACTION, MENTION_TYPES_TIME, MENTION_TYPES_LOCATION, MENTION_TYPES_PARTICIPANTS, HUMAN_PART_GPE, \
+    SENTENCE_IDX
 from python.handwritten_baseline.pipeline.data.loader import ecb_reader_utils
 from python.handwritten_baseline.pipeline.data.base import BaselineDataLoaderStage, Dataset
 
@@ -28,11 +29,26 @@ class EcbLoaderStage(BaselineDataLoaderStage):
         documents, tokens, mentions, entities_events = ecb_reader_utils.read_split_data(self._path_to_data_split,
                                                                                         self._sentence_filter_csv)
 
+        num_mentions_before = len(mentions)
         # remove invalid cross-sentence mentions - there is for example one in 36_4ecbplus
-        mentions_valid = mentions.loc[mentions[TOKEN_IDX_FROM] < mentions[TOKEN_IDX_TO]]
-        if len(mentions_valid) < len(mentions):
-            self.logger.warning(f"Removed {len(mentions) - len(mentions_valid)} invalid mention(s) present in the gold data.")
-        mentions = mentions_valid
+        backwards_span = mentions[TOKEN_IDX_FROM] >= mentions[TOKEN_IDX_TO]
+        mentions.drop(mentions.index[backwards_span], inplace=True)
+
+        # remove mentions whose spans overlap in the same sentence
+        overlapping_mention_indices = []
+        for _, df in mentions.groupby([DOCUMENT_ID, SENTENCE_IDX]):
+            token_ids_of_all_mentions_in_sent = set()
+            for idx, mention in df.iterrows():
+                token_ids_of_mention = set(range(mention[TOKEN_IDX_FROM], mention[TOKEN_IDX_TO]))
+                if token_ids_of_mention & token_ids_of_all_mentions_in_sent:
+                    overlapping_mention_indices.append(idx)
+                else:
+                    token_ids_of_all_mentions_in_sent |= token_ids_of_mention
+        mentions.drop(overlapping_mention_indices, inplace=True)
+
+        num_mentions_after = len(mentions)
+        if num_mentions_after < num_mentions_before:
+            self.logger.warning(f"Removed {num_mentions_before - num_mentions_after} invalid mention(s) present in the gold data.")
 
         # in 41_4ecb there is a participant mention with type "HUMAN_PART" which should be "HUMAN_PART_GPE"
         mentions[MENTION_TYPE] = mentions[MENTION_TYPE].replace({"HUMAN_PART": HUMAN_PART_GPE})

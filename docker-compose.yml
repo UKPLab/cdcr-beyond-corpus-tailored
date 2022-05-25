@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  pipeline:
+    image: mbugert/cdcr-data-postpro-hypercoref
+    #build:
+    #  context: .
+    #  dockerfile: pipeline.Dockerfile
+    container_name: cdcr-data-postpro-hypercoref-pipeline
+    env_file:
+      - .env
+    volumes:
+      - data:/cdcr/resources/data
+      - ${HOST_WORKING_DIR_DATA_POSTPRO}/working_dir:/cdcr/working_dir
+      - ${HOST_WORKING_DIR_HYPERCOREF}:/hypercoref:ro
+    stdin_open: true
+    tty: true
+    depends_on:
+      - corenlp
+    networks:
+      - cdcr-data-postpro-hypercoref
+
+  corenlp:
+    build:
+      context: .
+      dockerfile: corenlp.Dockerfile
+    container_name: cdcr-data-postpro-hypercoref-corenlp
+    networks:
+      - cdcr-data-postpro-hypercoref
+
+networks:
+  cdcr-data-postpro-hypercoref:
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOST_WORKING_DIR_DATA_POSTPRO}/data

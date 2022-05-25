@@ -2,9 +2,10 @@ from collections import MutableMapping
 
 import ruamel.yaml
 
-from python.common_components import CORENLP, YAML, DBPEDIA, DBPEDIA_SPOTLIGHT
+from python.common_components import CORENLP, YAML, DBPEDIA, DBPEDIA_SPOTLIGHT, NLTK
 from python.common_components.dbpedia import DbPedia
 from python.common_components.dbpedia_spotlight import DbPediaSpotlight
+from python.common_components.nltk import Nltk
 from python.pipeline import ComponentBase
 from python.common_components.corenlp import CoreNlp
 
@@ -18,7 +19,7 @@ class LiveObjectsSingletonDict(MutableMapping, ComponentBase):
         super(LiveObjectsSingletonDict, self).__init__(config, config_global, logger)
         self.store = dict()
 
-        self.generic_components = {CORENLP: CoreNlp, DBPEDIA: DbPedia, DBPEDIA_SPOTLIGHT: DbPediaSpotlight}
+        self.generic_components = {CORENLP: CoreNlp, DBPEDIA: DbPedia, DBPEDIA_SPOTLIGHT: DbPediaSpotlight, NLTK: Nltk}
 
         self.keywords = list(self.generic_components.keys()) + [YAML]
 

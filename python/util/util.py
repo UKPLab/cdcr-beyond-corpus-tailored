@@ -11,6 +11,9 @@ from ruamel.yaml import YAML
 from ruamel.yaml.compat import StringIO
 
 
+PROJECT_RESOURCES_PATH = Path(__file__).parent.parent.parent / "resources"
+
+
 class YAMLWithStrDump(YAML):
     """See https://yaml.readthedocs.io/en/latest/example.html#output-of-dump-as-a-string"""
 
